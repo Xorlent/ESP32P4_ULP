@@ -14,15 +14,32 @@ void setup()
     Serial.begin(115200);
     delay(500);
 
-    // esp_sleep_get_wakeup_cause() cannot detect ULP wakeup because
-    // Arduino-esp32 lacks CONFIG_ULP_COPROC_ENABLED.  Check shared memory instead.
-    if (ULP.sharedMem()->magic == ULP_SHARED_MAGIC &&
-        ULP.sharedMem()->lp_counter > 0) {
+    // Check shared memory for wakeup cause.
+    bool wokeFromULP = (ULP.sharedMem()->magic == ULP_SHARED_MAGIC &&
+                        ULP.sharedMem()->lp_counter > 0);
+    
+    if (wokeFromULP) {
         Serial.printf("Woke from ULP — LP counter: %lu, GPIO level: %lu\n",
                       (uint32_t)ULP.sharedMem()->lp_counter,
                       ULP.getData(0));
+        
+        // Prompt user before sleeping again to prevent having to force DFU mode to flash device
+        Serial.print("Enter deep sleep again? ('Y' or ENTER to sleep): ");
+        Serial.flush();
+        
+        while (true) {
+            if (Serial.available()) {
+                char response = Serial.read();
+                if (response == 'Y' || response == 'y' || 
+                    response == '\n' || response == '\r') {
+                    Serial.println("Y");
+                    break;
+                }
+            }
+            delay(10);
+        }
     } else {
-        Serial.println("First boot");
+        Serial.println("First boot...");
     }
 
     // Configure GPIO8 as LP IO input with pull-down
@@ -33,12 +50,17 @@ void setup()
 
     // Arm the LP core to poll GPIO8 and wake HP when it goes HIGH
     if (!ULP.wakeOnGPIO(LP_IO_8, HIGH)) {
-        Serial.println("ERROR: LP binary not built — run tools/build_all_lp_programs.py");
+        Serial.println("Failed to start ULP program");
         while (true) delay(1000);
     }
 
     Serial.println("Entering deep sleep. Connect GPIO8 to 3.3V to wake.");
     Serial.flush();
+
+    // Clear serial buffer
+    while (Serial.available()) {
+        Serial.read();
+    }
 
     ULP.clearWakeupPending();
     esp_deep_sleep_start();
