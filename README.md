@@ -2,7 +2,7 @@
 
 An Arduino library that exposes the **LP (Low Power) core** of the **ESP32-P4** to Arduino sketches despite the `ulp` component missing from Arduino-esp32.
 
-> [!INFO]  
+> [!INFORMATION]  
 > This library is highly experimental and subject to breakage with new Arduino-esp32 releases. Currently tested with Arduino-esp32 3.3.7 on Arduino IDE 2.3.8.
 
 ---
