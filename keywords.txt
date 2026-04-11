@@ -1,0 +1,73 @@
+#######################################
+# Syntax Coloring Map for ESP32P4_ULP
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+ESP32P4ULPClass	KEYWORD1
+ulp_shared_mem_t	KEYWORD1
+ulp_hal_cfg_t	KEYWORD1
+ulp_hal_err_t	KEYWORD1
+ulp_program_desc_t	KEYWORD1
+lp_io_num_arduino	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+wakeOnGPIO	KEYWORD2
+stop	KEYWORD2
+isRunning	KEYWORD2
+getData	KEYWORD2
+clearWakeupPending	KEYWORD2
+sharedMem	KEYWORD2
+ulp_hal_load_binary	KEYWORD2
+ulp_hal_run	KEYWORD2
+ulp_hal_stop	KEYWORD2
+ulp_hal_lp_is_running	KEYWORD2
+ulp_hal_shared_mem	KEYWORD2
+ulp_program_get	KEYWORD2
+
+#######################################
+# Instances (KEYWORD2)
+#######################################
+
+ULP	KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+
+LP_IO_0	LITERAL1
+LP_IO_1	LITERAL1
+LP_IO_2	LITERAL1
+LP_IO_3	LITERAL1
+LP_IO_4	LITERAL1
+LP_IO_5	LITERAL1
+LP_IO_6	LITERAL1
+LP_IO_7	LITERAL1
+LP_IO_8	LITERAL1
+LP_IO_9	LITERAL1
+LP_IO_10	LITERAL1
+LP_IO_11	LITERAL1
+LP_IO_12	LITERAL1
+LP_IO_13	LITERAL1
+LP_IO_14	LITERAL1
+LP_IO_15	LITERAL1
+ULP_HAL_OK	LITERAL1
+ULP_HAL_ERR_INVALID_ARG	LITERAL1
+ULP_HAL_ERR_INVALID_BINARY	LITERAL1
+ULP_HAL_ERR_NOT_P4	LITERAL1
+ULP_HAL_ERR_TIMEOUT	LITERAL1
+ULP_HAL_WAKE_HP_CPU	LITERAL1
+ULP_HAL_WAKE_LP_TIMER	LITERAL1
+ULP_HAL_WAKE_ETM	LITERAL1
+ULP_HAL_WAKE_LP_IO	LITERAL1
+ULP_HAL_WAKE_LP_UART	LITERAL1
+ULP_PROG_ID_NONE	LITERAL1
+ULP_PROG_ID_GPIO_WAKEUP	LITERAL1
+ULP_STATUS_RUNNING	LITERAL1
+ULP_STATUS_WAKEUP_PENDING	LITERAL1
+ULP_SHARED_MAGIC	LITERAL1
