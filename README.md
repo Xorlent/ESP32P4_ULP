@@ -16,8 +16,7 @@ An Arduino library that exposes the **LP (Low Power) core** of the **ESP32-P4** 
 - [API Reference](#api-reference)
 - [Example](#example)
 - [Shared Memory Layout](#shared-memory-layout)
-- [Limitations](#limitations)
-- [Project Structure](#project-structure)
+- [Further Guidance](#guidance)
 
 ---
 
@@ -222,8 +221,9 @@ Offset  Field          Written by  Description
 
 ---
 
-## Limitations
+## Guidance
 
+- If the device is in deep sleep, enter DFU mode to flash, then re-power the device to run new code
 - **ESP32-P4 only.**  Other ESP32 variants use different ULP types and are not supported.
 - **One LP program at a time.**  Only one program can be loaded into LP SRAM.
 - **LP IO only.**  The LP core can only access LP IO pins (GPIO0–GPIO15).
