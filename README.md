@@ -10,7 +10,6 @@ An Arduino library that exposes the **LP (Low Power) core** of the **ESP32-P4** 
 ## Table of Contents
 
 - [Background](#background)
-- [How It Works](#how-it-works)
 - [Installation](#installation)
 - [Hardware: LP IO Pins](#hardware-lp-io-pins)
 - [API Reference](#api-reference)
@@ -31,65 +30,6 @@ This library solves this by:
 1. Re-implementing the necessary hardware interaction using **register-level headers** that *are* present in Arduino-esp32's bundled ESP-IDF tree (`hal/lp_core_ll.h`, `soc/pmu_reg.h`, `soc/lp_timer_reg.h`, etc.).
 2. Shipping a **pre-compiled LP core binary** as a `const uint8_t[]` array embedded in a header file, so Arduino only needs to copy bytes into LP SRAM — no need to compile LP core code.
 3. Defining a **shared memory contract** that lets the main CPU pass configuration to the LP program and read results back, using a typed struct mapped at a fixed offset in LP SRAM.
-
----
-
-## How It Works
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│  Arduino sketch (HP core)                                       │
-│                                                                 │
-│  #include <ESP32P4_ULP.h>                                       │
-│  ULP.wakeOnGPIO(LP_IO_8, HIGH);                                 │
-│  ULP.clearWakeupPending();                                      │
-│  esp_deep_sleep_start();                                        │
-└──────────────────────┬──────────────────────────────────────────┘
-                       │
-                       ▼
-┌─────────────────────────────────────────────────────────────────┐
-│  ESP32P4_ULP.cpp  (C++ wrapper)                                 │
-│  Populates shared memory config, calls ulp_hal_run()            │
-└──────────────────────┬──────────────────────────────────────────┘
-                       │
-                       ▼
-┌─────────────────────────────────────────────────────────────────┐
-│  src/ulp_hal/ulp_hal.c  (register-level HAL)                    │
-│                                                                 │
-│  Uses ONLY header-only APIs:                                    │
-│    hal/lp_core_ll.h   ← static-inline, always available         │
-│    soc/pmu_reg.h      ← register addresses, always available    │
-│    soc/lp_timer_reg.h ← register addresses, always available    │
-│                                                                 │
-│  Does NOT link against: libulp.a or ulp component               │
-└──────────────────────┬──────────────────────────────────────────┘
-                       │  memcpy binary into LP SRAM
-                       │  write config into ulp_shared_mem_t
-                       │  configure LP timer / PMU registers
-                       │  release LP CPU reset
-                       ▼
-┌─────────────────────────────────────────────────────────────────┐
-│  LP SRAM  (0x50108000, 32 KB, visible to both cores)            │
-│                                                                 │
-│  ┌────────────────────────────────┐ ← offset 32                 │
-│  │  ulp_shared_mem_t  (64 bytes) │   HP writes config           │
-│  │  magic / program_id / config  │   LP writes status / data    │
-│  ├────────────────────────────────┤ ← offset 256                │
-│  │  LP core binary               │   pre-compiled RV32 code     │
-│  │  (copied from uint8_t array)  │                              │
-│  └────────────────────────────────┘                             │
-└──────────────────────┬──────────────────────────────────────────┘
-                       │  LP CPU executes
-                       ▼
-┌─────────────────────────────────────────────────────────────────┐
-│  LP core program  (RV32IMC, pre-compiled with ESP-IDF)          │
-│                                                                 │
-│  Reads config from shared header                                │
-│  Polls LP IO pin at 1 ms intervals                              │
-│  Writes sampled level back to shared header                     │
-│  Calls ulp_lp_core_wakeup_main_processor() when matched         │
-└─────────────────────────────────────────────────────────────────┘
-```
 
 ---
 
