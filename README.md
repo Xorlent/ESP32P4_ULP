@@ -1,4 +1,4 @@
-# ESP32P4 ULP — Arduino Library
+# ESP32P4_ULP — Arduino Library
 
 An Arduino library that exposes the **LP (Low Power) core** of the **ESP32-P4** to Arduino sketches despite the `ulp` component missing from Arduino-esp32.
 
