@@ -227,3 +227,4 @@ Offset  Field          Written by  Description
 - **ESP32-P4 only.**  Other ESP32 variants use different ULP types and are not supported.
 - **One LP program at a time.**  Only one program can be loaded into LP SRAM.
 - **LP IO only.**  The LP core can only access LP IO pins (GPIO0–GPIO15).
+- This library is designed for ESP32-P4 revisions < 3.00
