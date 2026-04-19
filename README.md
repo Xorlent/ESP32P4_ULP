@@ -117,7 +117,8 @@ Call `ULP.clearWakeupPending()` before `esp_deep_sleep_start()` to clear any sta
 
 ### wakeOnSoftwareI2CTemperature()
 
-_Important: The software-I2C example expects **external pullups** on SDA and SCL._
+> [!IMPORTANT]
+> The software-I2C example expects **external pullups** on SDA and SCL._
 
 ```text
              3.3V
