@@ -3,7 +3,7 @@
 Arduino support for the **ESP32-P4 LP (Low Power) core** using bundled pre-built LP binaries and a small register-level HAL, so Arduino sketches can use LP-core wake programs even though Arduino-esp32 does not ship the ESP-IDF `ulp` component.
 
 > [!IMPORTANT]
-> This library is highly experimental and subject to breakage with new Arduino-esp32 releases. The current implementation targets Arduino-esp32 3.3.x and was verified on Arduino-esp32 3.3.8 on Arduino IDE 2.3.8.
+> This library is experimental and subject to breakage with new Arduino-esp32 releases. The current implementation targets Arduino-esp32 3.3.x and was verified on Arduino-esp32 3.3.8 on Arduino IDE 2.3.8.
 
 ---
 
@@ -118,7 +118,7 @@ Call `ULP.clearWakeupPending()` before `esp_deep_sleep_start()` to clear any sta
 ### wakeOnSoftwareI2CTemperature()
 
 > [!IMPORTANT]
-> The software-I2C example expects **external pullups** on SDA and SCL._
+> The software-I2C example expects **external pullups** on SDA and SCL.
 
 ```text
              3.3V
