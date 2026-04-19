@@ -41,12 +41,6 @@ The Arduino-facing wrapper in `ESP32P4_ULP.h` currently exposes three bundled LP
 2. `int_wakeup`: Configure an LP IO interrupt source and wake when the selected LP GPIO trigger fires.
 3. `soft_i2c_temp_wakeup`: Bit-bang software I2C on two LP IO pins, read an SHT4X sensor at address `0x44`, and wake when temperature leaves a configured range.
 
-In addition to the `ULP` singleton, the library also exposes the low-level C headers used by the wrapper:
-
-- `ulp_hal.h`: register-level LP-core load/run/stop helpers
-- `ulp_shared.h`: shared-memory layout, status flags, and program IDs
-- `ulp_programs.h`: descriptors for the bundled LP binaries
-
 ---
 
 ## Installation
@@ -70,7 +64,7 @@ The ESP32-P4 has **16 LP IO pins** (`LP_IO_0` through `LP_IO_15`). These map 1:1
 - `wakeOnGPIO()` and `wakeOnInt()` use one LP IO pin as the wake source.
 - `wakeOnSoftwareI2CTemperature()` uses any two distinct LP IO pins for SDA and SCL.
 
-The wrapper routes the selected pins through the LP IO mux before starting the LP core. GPIO and interrupt wake modes also apply a default internal pull that matches the requested trigger. The software-I2C example expects **external pullups** on SDA and SCL.
+The wrapper routes the selected pins through the LP IO mux before starting the LP core. GPIO and interrupt wake modes also apply a default internal pull that matches the requested trigger.
 
 ```cpp
 ULP.wakeOnGPIO(LP_IO_8, HIGH);
@@ -122,6 +116,22 @@ Call `ULP.clearWakeupPending()` before `esp_deep_sleep_start()` to clear any sta
 **Returns:** `true` on success; `false` if the pin or trigger is invalid or the LP binary cannot be loaded.
 
 ### wakeOnSoftwareI2CTemperature()
+
+_Important: The software-I2C example expects **external pullups** on SDA and SCL._
+
+```text
+             3.3V
+              |
+          +---+---+
+          |       |
+        10kOhm  10kOhm
+          |       |
+    SDA wire to  SCL wire to
+    ESP32-P4    ESP32-P4
+          |       |
+    LP_IO_x /    LP_IO_y /
+    sensor SDA   sensor SCL
+```
 
 ```cpp
 bool ULP.wakeOnSoftwareI2CTemperature(uint8_t sda_lp_gpio_num,
@@ -191,7 +201,7 @@ Enters deep sleep and wakes when GPIO8 goes HIGH. Connect a button between GPIO8
 
 [examples/WakeOnInt/WakeOnInt.ino](examples/WakeOnInt/WakeOnInt.ino)
 
-Enters deep sleep and wakes when GPIO9 is HIGH using the `int_wakeup` LP program, which waits for an LP IO interrupt and then wakes the HP core.
+Enters deep sleep and wakes when GPIO9 transitions HIGH using the `int_wakeup` LP program, which waits for an LP IO interrupt and then wakes the HP core.
 
 ### WakeOnI2CTemp
 
