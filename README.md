@@ -247,3 +247,4 @@ For `soft_i2c_temp_wakeup`, `config2` stores the low and high raw SHT4X temperat
 - **Software-I2C support is currently SHT4X-specific.** The bundled LP program talks to address `0x44` and validates the returned CRC bytes.
 - **Arduino users consume pre-built LP binaries.** The `lp_core/` directory is for maintaining or rebuilding those binaries outside the normal Arduino workflow.
 - This library is designed for ESP32-P4 revisions before 3.00.
+- Likely due to the lack of ULP support in Arduino, the device will show WDT resets on wake occasionally.  This library will still correctly identify a wake from deep sleep.
