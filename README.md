@@ -52,6 +52,7 @@ The Arduino-facing wrapper in `ESP32P4_ULP.h` currently exposes three bundled LP
     - **Sketch -> Include Library -> Add .ZIP Library...** and select a `.zip` archive of this repository.
     - Copy the repository folder into your Arduino `libraries` directory.
 3. Select board: **ESP32P4 Dev Module** (or any ESP32-P4 board in Arduino-esp32 3.x or later).
+4. Select "Tools" and ensure USB CDC On Boot is "Enabled," Chip Variant is "Before v.3.00," and USB Mode is "Hardware CDC and JTAG"
 
 No extra LP build step is required for Arduino use. The LP binaries are already embedded under `src/programs/`.
 
