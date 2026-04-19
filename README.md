@@ -47,8 +47,8 @@ The Arduino-facing wrapper in `ESP32P4_ULP.h` currently exposes three bundled LP
 
 ### Arduino IDE
 
-1. Download or clone this repository.
-2. Install it using one of these approaches:
+1. Install via the Arduino Library Manager (ESP32P4_ULP by Xorlent) or using the Download or clone this repository.
+2. If downloading/cloning the repository:
     - **Sketch -> Include Library -> Add .ZIP Library...** and select a `.zip` archive of this repository.
     - Copy the repository folder into your Arduino `libraries` directory.
 3. Select board: **ESP32P4 Dev Module** (or any ESP32-P4 board in Arduino-esp32 3.x or later).
