@@ -177,11 +177,11 @@ void setup()
         delay(10);
     }
 
-    if (!ULP.wakeOnSoftwareI2CTemperature(SDA_LP_IO,
-                                          SCL_LP_IO,
-                                          LOW_LIMIT_C_DEG,
-                                          HIGH_LIMIT_C_DEG,
-                                          POLL_PERIOD_MS)) {
+    if (!ULP.wakeOnSoftwareI2CSHT4x(SDA_LP_IO,
+                                    SCL_LP_IO,
+                                    LOW_LIMIT_C_DEG,
+                                    HIGH_LIMIT_C_DEG,
+                                    POLL_PERIOD_MS)) {
         Serial.println("Failed to start the LP software-I2C temperature program");
         while (true) {
             delay(1000);
