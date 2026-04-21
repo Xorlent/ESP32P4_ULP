@@ -17,6 +17,7 @@ Arduino support for the **ESP32-P4 LP (Low Power) core** using bundled pre-built
 - [Examples](#examples)
 - [Shared Memory Layout](#shared-memory-layout)
 - [Guidance](#guidance)
+- [Reference Material](#reference-material)
 
 ---
 
@@ -261,3 +262,7 @@ For `soft_i2c_temp_wakeup`, `config2` stores the low and high raw SHT4X temperat
 - **Arduino users consume pre-built LP binaries.** The `lp_core/` directory is for maintaining or rebuilding those binaries outside the normal Arduino workflow.
 - This library is designed for ESP32-P4 revisions before 3.00.
 - Likely due to the lack of ULP support in Arduino, the device will show WDT resets on wake occasionally.  This library will still correctly identify a wake from deep sleep.
+
+## Reference Material
+
+- The source code used to generate the binaries embedded in this library can be seen at [https://github.com/Xorlent/ESP32P4_ULP-LP_Core](https://github.com/Xorlent/ESP32P4_ULP-LP_Core)
