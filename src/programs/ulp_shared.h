@@ -89,7 +89,7 @@ typedef struct __attribute__((packed, aligned(4))) {
     volatile uint32_t config0;      /**< Program-specific: see per-program docs */
     volatile uint32_t config1;      /**< Program-specific */
     volatile uint32_t config2;      /**< Program-specific */
-    volatile uint32_t reserved0;    /**< Padding / future use */
+    volatile uint32_t config3;      /**< Program-specific */
 
     /* Written by LP core after start */
     volatile uint32_t status;       /**< ULP_STATUS_* bitmask */
@@ -117,10 +117,14 @@ typedef char ulp_shared_mem_size_check[
  * SOFT_I2C_TEMP_WAKEUP config fields:
  *   config0 : SDA LP IO number     (0-15, matches lp_io_num_t)
  *   config1 : SCL LP IO number     (0-15, matches lp_io_num_t)
- *   config2 : packed raw thresholds
+ *   config2 : packed raw temperature thresholds
  *             low halfword  = raw low temperature threshold
  *             high halfword = raw high temperature threshold
- *   reserved0 : reserved for future protocol flags / timing mode
+ *             disabled when low halfword > high halfword
+ *   config3 : packed raw humidity thresholds
+ *             low halfword  = raw low humidity threshold
+ *             high halfword = raw high humidity threshold
+ *             disabled when low halfword > high halfword
  *   data[0] : last raw temperature sample (SHT4X 16-bit sample in low halfword)
  *   data[1] : last software-I2C / protocol status code
  *             0 = OK, 1 = bus not idle, 2 = command address NACK,
