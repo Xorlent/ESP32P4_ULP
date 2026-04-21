@@ -63,7 +63,7 @@ No extra LP build step is required for Arduino use. The LP binaries are already 
 The ESP32-P4 has **16 LP IO pins** (`LP_IO_0` through `LP_IO_15`). These map 1:1 to GPIO0-GPIO15.
 
 - `wakeOnGPIO()` and `wakeOnInt()` use one LP IO pin as the wake source.
-- `wakeOnSoftwareI2CTemperature()` uses any two distinct LP IO pins for SDA and SCL.
+- `wakeOnSoftwareI2CSHT4x()` uses any two distinct LP IO pins for SDA and SCL.
 
 The wrapper routes the selected pins through the LP IO mux before starting the LP core. GPIO and interrupt wake modes also apply a default internal pull that matches the requested trigger.
 
@@ -116,10 +116,10 @@ Call `ULP.clearWakeupPending()` before `esp_deep_sleep_start()` to clear any sta
 
 **Returns:** `true` on success; `false` if the pin or trigger is invalid or the LP binary cannot be loaded.
 
-### wakeOnSoftwareI2CTemperature()
+### wakeOnSoftwareI2CSHT4x()
 
 > [!IMPORTANT]
-> The software-I2C example expects **external pullups** on SDA and SCL.
+> The software-I2C requires **external pullups** on SDA and SCL.
 
 ```text
              3.3V
@@ -136,14 +136,18 @@ Call `ULP.clearWakeupPending()` before `esp_deep_sleep_start()` to clear any sta
 ```
 
 ```cpp
-bool ULP.wakeOnSoftwareI2CTemperature(uint8_t sda_lp_gpio_num,
-                                      uint8_t scl_lp_gpio_num,
-                                      int16_t low_limit_c_deg,
-                                      int16_t high_limit_c_deg,
-                                      uint32_t period_ms = 300000);
+bool ULP.wakeOnSoftwareI2CSHT4x(uint8_t sda_lp_gpio_num,
+                                uint8_t scl_lp_gpio_num,
+                                int16_t low_limit_c_deg,
+                                int16_t high_limit_c_deg,
+                                uint32_t period_ms = 300000,
+                                int16_t low_limit_c_hum = 1,
+                                int16_t high_limit_c_hum = 0);
 ```
 
-Load the `soft_i2c_temp_wakeup` LP program and arm timer-based polling for an SHT4X temperature sensor on I2C address `0x44` using any available LP GPIO pins. The LP core bit-bangs a measurement command (`0xFD`), waits for the conversion to complete, reads the 6-byte result, validates both CRC bytes, stores the latest raw temperature and humidity samples in shared memory, and wakes the HP core when the raw temperature falls outside the configured threshold range. The wrapper configures the selected SDA/SCL pins for LP ownership, expects external pullups on both lines, and packs the temperature thresholds into LP shared memory as raw SHT4X values.
+`wakeOnSoftwareI2CTemperature()`, remains available as a backward-compatible wrapper.
+
+Loads the `soft_i2c_temp_wakeup` LP program and arm timer-based polling for an SHT4X temperature sensor on I2C address `0x44` using any available LP GPIO pins. The LP core bit-bangs a measurement command (`0xFD`), waits for the conversion to complete, reads the 6-byte result, validates both CRC bytes, stores the latest raw temperature and humidity samples in shared memory, and wakes the HP core when either enabled threshold range is violated. The wrapper configures the selected SDA/SCL pins for LP ownership, expects external pullups on both lines, packs the temperature thresholds into LP shared memory as raw SHT4X values, converts humidity thresholds from centi-percent RH into raw SHT4X values, and disables humidity wake by default when `low_limit_c_hum > high_limit_c_hum`.
 
 | Parameter | Description |
 |---|---|
@@ -152,6 +156,8 @@ Load the `soft_i2c_temp_wakeup` LP program and arm timer-based polling for an SH
 | `low_limit_c_deg` | Lower temperature threshold in centi-degrees C |
 | `high_limit_c_deg` | Upper temperature threshold in centi-degrees C |
 | `period_ms` | LP polling period in milliseconds (minimum: 50) |
+| `low_limit_c_hum` | Optional lower humidity threshold in centi-percent RH; humidity wake disabled when this is greater than `high_limit_c_hum` |
+| `high_limit_c_hum` | Optional upper humidity threshold in centi-percent RH |
 
 **Returns:** `true` on success; `false` if arguments are invalid, `period_ms` is below 50 ms, or the LP binary cannot be loaded.
 
@@ -211,6 +217,12 @@ Enters deep sleep and wakes when GPIO9 transitions HIGH using the `int_wakeup` L
 
 Uses LP_IO_8 as SDA and LP_IO_9 as SCL to monitor an SHT4X sensor and wake the HP core when the measured temperature falls outside the configured range. The example defaults to a narrow `0.00 C` to `10.00 C` window so it will usually wake after one poll in a normal room-temperature environment.
 
+### WakeOnI2CTemp_Hum
+
+[examples/WakeOnI2CTemp_Hum/WakeOnI2CTemp_Hum.ino](examples/WakeOnI2CTemp_Hum/WakeOnI2CTemp_Hum.ino)
+
+Uses LP_IO_8 as SDA and LP_IO_9 as SCL to monitor an SHT4X sensor and wake the HP core when either the measured temperature or humidity falls outside the configured range. The example defaults to `10.00 C` to `30.00 C` and `20.00 %RH` to `75.00 %RH`.
+
 ---
 
 ## Shared Memory Layout
@@ -224,8 +236,8 @@ Offset  Field          Written by  Description
 0x04    program_id     HP          Loaded LP program ID (GPIO_WAKEUP, INT_WAKEUP, SOFT_I2C_TEMP_WAKEUP)
 0x08    config0        HP          Target LP IO number or SDA LP IO number
 0x0C    config1        HP          Program-specific trigger config or SCL LP IO number
-0x10    config2        HP          Program-specific extra config / packed raw thresholds
-0x14    reserved0      -           Reserved
+0x10    config2        HP          Program-specific extra config / packed raw temperature thresholds
+0x14    config3        HP          Program-specific extra config / packed raw humidity thresholds
 0x18    status         LP          ULP_STATUS_* bitmask
 0x1C    lp_counter     LP          Incremented each LP cycle
 0x20    data[0]        LP          Last sampled GPIO level / raw SHT4X temperature
