@@ -18,7 +18,6 @@ lp_gpio_wakeup_int_type_t	KEYWORD1
 wakeOnGPIO	KEYWORD2
 wakeOnInt	KEYWORD2
 wakeOnSoftwareI2CSHT4x	KEYWORD2
-wakeOnSoftwareI2CTemperature	KEYWORD2
 wokeFromULP	KEYWORD2
 stop	KEYWORD2
 isRunning	KEYWORD2
