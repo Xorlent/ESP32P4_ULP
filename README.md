@@ -39,7 +39,7 @@ The Arduino-facing wrapper in `ESP32P4_ULP.h` currently exposes three bundled LP
 
 1. `gpio_wakeup`: Poll an LP IO pin on the LP timer and wake on a target level with optional debounce.
 2. `int_wakeup`: Configure an LP IO interrupt source and wake when the selected LP GPIO trigger fires.
-3. `soft_i2c_temp_wakeup`: Bit-bang software I2C on two LP IO pins, read an SHT4X sensor at address `0x44`, and wake when temperature leaves a configured range.
+3. `soft_i2c_temp_wakeup`: Bit-bang software I2C on two LP IO pins, read an SHT4X sensor at address `0x44`, and wake when temperature or humidity leaves a configured range.
 
 ---
 
