@@ -35,6 +35,20 @@ static uint16_t s_sht4x_cdeg_to_raw(int16_t temp_c_deg)
     return (uint16_t)(numerator / 17500u);
 }
 
+static uint16_t s_sht4x_rh_cpercent_to_raw(int16_t humidity_cpercent)
+{
+    int32_t clamped = humidity_cpercent;
+
+    if (clamped < 0) {
+        clamped = 0;
+    } else if (clamped > 10000) {
+        clamped = 10000;
+    }
+
+    const uint32_t numerator = (uint32_t)(clamped + 600) * 65535u + 6250u;
+    return (uint16_t)(numerator / 12500u);
+}
+
 static void s_configure_lp_io_input(uint8_t lp_gpio_num, bool pullup, bool pulldown)
 {
     ulp_hal_enable_lp_io_clock();
@@ -200,11 +214,13 @@ bool ESP32P4ULPClass::wakeOnInt(uint8_t lp_gpio_num, uint8_t wake_level)
     return true;
 }
 
-bool ESP32P4ULPClass::wakeOnSoftwareI2CTemperature(uint8_t sda_lp_gpio_num,
-                                                   uint8_t scl_lp_gpio_num,
-                                                   int16_t low_limit_c_deg,
-                                                   int16_t high_limit_c_deg,
-                                                   uint32_t period_ms)
+bool ESP32P4ULPClass::wakeOnSoftwareI2CSHT4x(uint8_t sda_lp_gpio_num,
+                                             uint8_t scl_lp_gpio_num,
+                                             int16_t low_limit_c_deg,
+                                             int16_t high_limit_c_deg,
+                                             uint32_t period_ms,
+                                             int16_t low_limit_c_hum,
+                                             int16_t high_limit_c_hum)
 {
     if (sda_lp_gpio_num > 15 || scl_lp_gpio_num > 15 ||
         sda_lp_gpio_num == scl_lp_gpio_num ||
@@ -228,11 +244,19 @@ bool ESP32P4ULPClass::wakeOnSoftwareI2CTemperature(uint8_t sda_lp_gpio_num,
 
     const uint16_t raw_low_limit = s_sht4x_cdeg_to_raw(low_limit_c_deg);
     const uint16_t raw_high_limit = s_sht4x_cdeg_to_raw(high_limit_c_deg);
+    uint16_t raw_humidity_low_limit = 1;
+    uint16_t raw_humidity_high_limit = 0;
+
+    if (low_limit_c_hum <= high_limit_c_hum) {
+        raw_humidity_low_limit = s_sht4x_rh_cpercent_to_raw(low_limit_c_hum);
+        raw_humidity_high_limit = s_sht4x_rh_cpercent_to_raw(high_limit_c_hum);
+    }
 
     volatile ulp_shared_mem_t *sh = ulp_hal_shared_mem();
     sh->config0 = sda_lp_gpio_num;
     sh->config1 = scl_lp_gpio_num;
     sh->config2 = ULP_PACK_U16_PAIR(raw_low_limit, raw_high_limit);
+    sh->config3 = ULP_PACK_U16_PAIR(raw_humidity_low_limit, raw_humidity_high_limit);
 
     ulp_hal_cfg_t cfg = {
         .wakeup_source      = ULP_HAL_WAKE_LP_TIMER,

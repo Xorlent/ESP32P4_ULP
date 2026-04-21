@@ -62,16 +62,38 @@ public:
      * Load the software-I2C temperature LP program and arm timer-based polling.
      * The LP core performs a high-repeatability SHT4X measurement over a bit-banged
      * software-I2C bus at address 0x44, validates both CRC bytes, stores the latest
-     * raw temperature/humidity samples in shared memory, and wakes HP when the raw
-     * temperature falls outside the inclusive [low_limit_c_deg, high_limit_c_deg]
-    * range after conversion to raw SHT4X thresholds. External pullups on SDA and
-    * SCL are required. period_ms must be at least 50 ms.
+    * raw temperature/humidity samples in shared memory, and wakes HP when either
+    * enabled threshold pair is violated. Temperature limits are specified in
+    * centi-degrees Celsius and converted to raw SHT4X thresholds. Humidity limits
+    * are specified in centi-percent RH and are disabled by default when
+    * low_limit_c_hum > high_limit_c_hum. External pullups
+    * on SDA and SCL are required. period_ms must be at least 50 ms.
      */
-    bool wakeOnSoftwareI2CTemperature(uint8_t sda_lp_gpio_num,
-                                      uint8_t scl_lp_gpio_num,
-                                      int16_t low_limit_c_deg,
-                                      int16_t high_limit_c_deg,
-                                      uint32_t period_ms = 300000);
+    bool wakeOnSoftwareI2CSHT4x(uint8_t sda_lp_gpio_num,
+                                uint8_t scl_lp_gpio_num,
+                                int16_t low_limit_c_deg,
+                                int16_t high_limit_c_deg,
+                                uint32_t period_ms = 300000,
+                                int16_t low_limit_c_hum = 1,
+                                int16_t high_limit_c_hum = 0);
+
+    /** Backward-compatible wrapper for the v.0.0.1 API name. */
+    inline bool wakeOnSoftwareI2CTemperature(uint8_t sda_lp_gpio_num,
+                                             uint8_t scl_lp_gpio_num,
+                                             int16_t low_limit_c_deg,
+                                             int16_t high_limit_c_deg,
+                                             uint32_t period_ms = 300000,
+                                             int16_t low_limit_c_hum = 1,
+                                             int16_t high_limit_c_hum = 0)
+    {
+        return wakeOnSoftwareI2CSHT4x(sda_lp_gpio_num,
+                                      scl_lp_gpio_num,
+                                      low_limit_c_deg,
+                                      high_limit_c_deg,
+                                      period_ms,
+                                      low_limit_c_hum,
+                                      high_limit_c_hum);
+    }
 
     /** Stop the currently running LP program. */
     void stop(void);
