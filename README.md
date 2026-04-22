@@ -123,7 +123,7 @@ Call `ULP.clearWakeupPending()` before `esp_deep_sleep_start()` to clear any sta
 > The software-I2C requires **external pullups** on SDA and SCL.
 
 ```text
-             3.3V
+    3.3V or i2c_pwr_gpio_num
               |
           +---+---+
           |       |
@@ -141,6 +141,15 @@ bool ULP.wakeOnSoftwareI2CSHT4x(uint8_t sda_lp_gpio_num,
                                 uint8_t scl_lp_gpio_num,
                                 int16_t low_limit_c_deg,
                                 int16_t high_limit_c_deg,
+                                uint32_t period_ms,
+                                int16_t low_limit_c_hum,
+                                int16_t high_limit_c_hum,
+                                uint8_t i2c_pwr_gpio_num);
+
+bool ULP.wakeOnSoftwareI2CSHT4x(uint8_t sda_lp_gpio_num,
+                                uint8_t scl_lp_gpio_num,
+                                int16_t low_limit_c_deg,
+                                int16_t high_limit_c_deg,
                                 uint32_t period_ms = 300000,
                                 int16_t low_limit_c_hum = 1,
                                 int16_t high_limit_c_hum = 0);
@@ -148,7 +157,7 @@ bool ULP.wakeOnSoftwareI2CSHT4x(uint8_t sda_lp_gpio_num,
 
 `wakeOnSoftwareI2CTemperature()`, remains available as a backward-compatible wrapper.
 
-Loads the `soft_i2c_temp_wakeup` LP program and arm timer-based polling for an SHT4X temperature sensor on I2C address `0x44` using any available LP GPIO pins. The LP core bit-bangs a measurement command (`0xFD`), waits for the conversion to complete, reads the 6-byte result, validates both CRC bytes, stores the latest raw temperature and humidity samples in shared memory, and wakes the HP core when either enabled threshold range is violated. The wrapper configures the selected SDA/SCL pins for LP ownership, expects external pullups on both lines, packs the temperature thresholds into LP shared memory as raw SHT4X values, converts humidity thresholds from centi-percent RH into raw SHT4X values, and disables humidity wake by default when `low_limit_c_hum > high_limit_c_hum`.
+Loads the `soft_i2c_temp_wakeup` LP program and arm timer-based polling for an SHT4X temperature sensor on I2C address `0x44` using any available LP GPIO pins. The LP core bit-bangs a measurement command (`0xFD`), waits for the conversion to complete, reads the 6-byte result, validates both CRC bytes, stores the latest raw temperature and humidity samples in shared memory, and wakes the HP core when either enabled threshold range is violated. The wrapper configures the selected SDA/SCL pins for LP ownership, expects external pullups on both lines (see above), packs the temperature thresholds into LP shared memory as raw SHT4X values, converts humidity thresholds from centi-percent RH into raw SHT4X values, and will disable temperature or humidity wake when `low_limit > high_limit`. When `i2c_pwr_gpio_num` is provided, that LP GPIO pin is used to power the I2C bus during measurement (not to be used with pullup resistor values lower than 8kOhm).
 
 | Parameter | Description |
 |---|---|
@@ -159,6 +168,7 @@ Loads the `soft_i2c_temp_wakeup` LP program and arm timer-based polling for an S
 | `period_ms` | LP polling period in milliseconds (minimum: 50) |
 | `low_limit_c_hum` | Optional lower humidity threshold in centi-percent RH; humidity wake disabled when this is greater than `high_limit_c_hum` |
 | `high_limit_c_hum` | Optional upper humidity threshold in centi-percent RH |
+| `i2c_pwr_gpio_num` | Optional LP IO pin used to power the sensor and SDA/SCL pullup rail during each LP measurement; omit when using external 3.3v power |
 
 **Returns:** `true` on success; `false` if arguments are invalid, `period_ms` is below 50 ms, or the LP binary cannot be loaded.
 
