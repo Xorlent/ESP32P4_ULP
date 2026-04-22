@@ -14,6 +14,7 @@ void setup()
 {
     if (ULP.wokeFromULP()) {
         ULP.stop();
+        // Add your wake program code/function calls here
     }
 
     ULP.wakeOnGPIO(LP_IO_8, HIGH);
