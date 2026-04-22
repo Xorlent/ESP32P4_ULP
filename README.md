@@ -2,6 +2,31 @@
 
 Arduino support for the **ESP32-P4 LP (Low Power) core** using bundled pre-built LP binaries and a small register-level HAL, so Arduino sketches can use LP-core wake programs even though Arduino-esp32 does not ship the ESP-IDF `ulp` component.
 
+## Quick Start
+
+1. Install the "ESP32P4_ULP by Xorlent" Arduino library
+2. Get deep sleep wake on GPIO 8 by copying the example below
+
+```cpp
+#include <ESP32P4_ULP.h>
+
+void setup()
+{
+    if (ULP.wokeFromULP()) {
+        ULP.stop();
+        // Add your wake program code/function calls here
+    }
+
+    ULP.wakeOnGPIO(LP_IO_8, HIGH);
+    ULP.clearWakeupPending();
+    esp_deep_sleep_start();
+}
+
+void loop()
+{
+}
+```
+
 > [!IMPORTANT]
 > This library is experimental and subject to breakage with new Arduino-esp32 releases. The current implementation targets Arduino-esp32 3.3.x and was verified on Arduino-esp32 3.3.8 on Arduino IDE 2.3.8.
 
