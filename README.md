@@ -27,9 +27,6 @@ void loop()
 }
 ```
 
-> [!IMPORTANT]
-> This library is experimental and subject to breakage with new Arduino-esp32 releases. The current implementation targets Arduino-esp32 3.3.x and was verified on Arduino-esp32 3.3.8 on Arduino IDE 2.3.8.
-
 ---
 
 ## Table of Contents
@@ -45,6 +42,9 @@ void loop()
 - [Reference Material](#reference-material)
 
 ---
+
+> [!IMPORTANT]
+> This library is experimental and subject to breakage with new Arduino-esp32 releases. The current implementation targets Arduino-esp32 3.3.x and was verified on Arduino-esp32 3.3.8 on Arduino IDE 2.3.8.
 
 ## Background
 
