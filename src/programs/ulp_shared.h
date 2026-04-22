@@ -115,8 +115,13 @@ typedef char ulp_shared_mem_size_check[
  *   data[0] : last sampled GPIO level seen by the LP ISR
  *
  * SOFT_I2C_TEMP_WAKEUP config fields:
- *   config0 : SDA LP IO number     (0-15, matches lp_io_num_t)
- *   config1 : SCL LP IO number     (0-15, matches lp_io_num_t)
+ *   config0 : packed LP IO numbers
+ *             low halfword  = SDA LP IO number (0-15, matches lp_io_num_t)
+ *             high halfword = SCL LP IO number (0-15, matches lp_io_num_t)
+ *   config1 : packed extra pin config
+ *             low halfword  = optional LP IO power pin (0-15, matches lp_io_num_t)
+ *                             disabled when this halfword is greater than 15
+ *             high halfword = reserved
  *   config2 : packed raw temperature thresholds
  *             low halfword  = raw low temperature threshold
  *             high halfword = raw high temperature threshold
