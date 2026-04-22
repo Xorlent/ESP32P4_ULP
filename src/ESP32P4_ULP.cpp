@@ -18,6 +18,7 @@
 #define ULP_PMU_LP_CORE_WAKEUP_EN    (1u << 1)
 
 static constexpr uint32_t ULP_SOFT_I2C_MIN_PERIOD_MS = 50u;
+static constexpr uint16_t ULP_SOFT_I2C_POWER_PIN_NONE = 0xFFFFu;
 
 ESP32P4ULPClass ULP;
 
@@ -220,10 +221,14 @@ bool ESP32P4ULPClass::wakeOnSoftwareI2CSHT4x(uint8_t sda_lp_gpio_num,
                                              int16_t high_limit_c_deg,
                                              uint32_t period_ms,
                                              int16_t low_limit_c_hum,
-                                             int16_t high_limit_c_hum)
+                                             int16_t high_limit_c_hum,
+                                             uint8_t i2c_pwr_gpio_num)
 {
     if (sda_lp_gpio_num > 15 || scl_lp_gpio_num > 15 ||
         sda_lp_gpio_num == scl_lp_gpio_num ||
+        ((i2c_pwr_gpio_num != 0xFFu) && (i2c_pwr_gpio_num > 15 ||
+         i2c_pwr_gpio_num == sda_lp_gpio_num ||
+         i2c_pwr_gpio_num == scl_lp_gpio_num)) ||
         low_limit_c_deg > high_limit_c_deg ||
         period_ms < ULP_SOFT_I2C_MIN_PERIOD_MS ||
         period_ms > (UINT32_MAX / 1000u)) {
@@ -253,8 +258,10 @@ bool ESP32P4ULPClass::wakeOnSoftwareI2CSHT4x(uint8_t sda_lp_gpio_num,
     }
 
     volatile ulp_shared_mem_t *sh = ulp_hal_shared_mem();
-    sh->config0 = sda_lp_gpio_num;
-    sh->config1 = scl_lp_gpio_num;
+    sh->config0 = ULP_PACK_U16_PAIR(sda_lp_gpio_num, scl_lp_gpio_num);
+    sh->config1 = ULP_PACK_U16_PAIR(
+        (i2c_pwr_gpio_num == 0xFFu) ? ULP_SOFT_I2C_POWER_PIN_NONE : i2c_pwr_gpio_num,
+        0u);
     sh->config2 = ULP_PACK_U16_PAIR(raw_low_limit, raw_high_limit);
     sh->config3 = ULP_PACK_U16_PAIR(raw_humidity_low_limit, raw_humidity_high_limit);
 
